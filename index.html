@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>QR Code Generator — Modern & Ultra Responsive</title>
+  <style>
+    :root{ --bg:#0b1220;--bg2:#0e1526;--card:#0f1b33;--muted:#a8b9de;--text:#eef4ff;--accent:#76a8ff;--accent2:#4f7dff;--border:#1f2a45;--danger:#ff6b6b }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    @media (prefers-color-scheme: light){:root{--bg:#f6f8ff;--bg2:#edf2ff;--card:#ffffff;--text:#0b1220;--muted:#5b6a8a;--border:#d9e0f2}}
+
+    .container{max-width:min(1200px,96vw);margin-inline:auto;padding:clamp(12px,2.4vw,24px)}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:clamp(12px,2.2vw,18px)}
+    h1{margin:0;font-size:clamp(20px,3.2vw,28px);font-weight:800;letter-spacing:.2px;background:linear-gradient(90deg,#dfe8ff,#a8c6ff,#78a7ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+    .app{display:grid;gap:clamp(12px,2vw,16px)}
+    @media (min-width:1100px){.app{grid-template-columns:1.05fr .95fr}}
+
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));border:1px solid var(--border);border-radius:18px;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+    .section{padding:clamp(14px,2.2vw,18px)}
+
+    .row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr))}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px 4px}
+    input[type=text],input[type=number],select{width:100%;background:color-mix(in hsl, var(--card) 92%, #0000);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:12px;outline:none;transition:.2s}
+    input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 30%, transparent)}
+
+    .controls{display:grid;gap:16px}
+    .btns{display:flex;flex-wrap:wrap;gap:10px}
+    button{appearance:none;border:1px solid var(--border);background:linear-gradient(180deg,#0f1b33,#0c1730);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;transition:.25s}
+    button:hover{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 25%, transparent),0 6px 18px rgba(0,0,0,.25)}
+    .primary{background:linear-gradient(180deg,var(--accent),var(--accent2));border-color:#3b6cff}
+    .success{background:linear-gradient(180deg,#22c55e,#19924a);border-color:#22c55e}
+    .ghost{background:transparent}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:color-mix(in hsl, var(--card) 90%, #0000);color:var(--muted)}
+
+    .picker{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    input[type=color]{inline-size:42px;block-size:42px;border:none;background:transparent;padding:0;border-radius:10px}
+    .swatches{display:flex;flex-wrap:wrap;gap:8px}
+    .swatch{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);cursor:pointer}
+
+    .size-grid{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+    input[type=range]{width:100%}
+    .presets{display:flex;gap:8px;flex-wrap:wrap}
+    .preset{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:color-mix(in hsl, var(--card) 90%, #0000);color:#b8c7ea;cursor:pointer}
+    .preset:hover{border-color:var(--accent);color:#cfe0ff}
+
+    .panel{background:color-mix(in hsl, var(--card) 92%, #0000);border:1px dashed var(--border);border-radius:16px;padding:16px}
+    .preview{display:grid;place-items:center;min-height:clamp(220px,34vw,360px);padding:10px}
+    canvas{max-width:100%;height:auto}
+
+    .footer-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .muted{color:var(--muted);font-size:12px}
+    .error{color:var(--danger);font-size:13px;min-height:18px}
+
+    .checker{background-image: linear-gradient(45deg,#ccc 25%, transparent 25%),linear-gradient(-45deg,#ccc 25%, transparent 25%),linear-gradient(45deg, transparent 75%, #ccc 75%),linear-gradient(-45deg, transparent 75%, #ccc 75%);background-size: 20px 20px;background-position: 0 0, 0 10px, 10px -10px, -10px 0px}
+    .disabled{opacity:.6; pointer-events:none}
+
+    /* ACTIVE STATE */
+    .active{ border-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in oklab,var(--accent) 35%, transparent) }
+    .button-group{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:color-mix(in hsl, var(--card) 90%, #0000);color:#cfe0ff;cursor:pointer}
+    .btn[aria-pressed="true"], .btn.active{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 35%, transparent)}
+    .toggle{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);cursor:pointer}
+    .toggle.active{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab,var(--accent) 35%, transparent)}
+
+    /* Validation */
+    .invalid{ border-color: var(--danger) !important; box-shadow: 0 0 0 3px color-mix(in oklab,var(--danger) 35%, transparent) }
+    .hint{ font-size:11px; color:var(--muted); margin:6px 0 0 4px }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔳 QR Code Generator</h1>
+      <span class="chip" id="sizeLabel">320 × 320</span>
+    </header>
+
+    <div class="app">
+      <div class="card" aria-labelledby="controls-title">
+        <div class="section controls">
+          <h2 id="controls-title" style="position:absolute;left:-9999px">Kontrol</h2>
+
+          <div class="row">
+            <div style="grid-column:1/-1">
+              <label for="data">Data / URL</label>
+              <input id="data" type="text" placeholder="cth: https://contoh.com"/>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>QR Code Color</label>
+              <div class="picker">
+                <input id="darkColor" type="text" value="#111827" placeholder="#000000" aria-label="HEX warna QR"/>
+                <input id="darkColorPick" type="color" value="#111827" aria-label="Pilih warna QR"/>
+              </div>
+              <div class="swatches" id="darkSwatches"></div>
+              <p class="hint">Gunakan format HEX: #RGB atau #RRGGBB</p>
+            </div>
+            <div>
+              <label>Background</label>
+              <div class="picker">
+                <input id="lightColor" type="text" value="#ffffff" placeholder="#ffffff" aria-label="HEX warna latar"/>
+                <input id="lightColorPick" type="color" value="#ffffff" aria-label="Pilih warna latar"/>
+              </div>
+              <label id="transparentToggleLabel" class="muted toggle" style="margin-top:8px"><input id="bgTransparent" type="checkbox"/> Transparan</label>
+              <div class="swatches" id="lightSwatches"></div>
+              <p class="hint">Centang Transparan bila ingin tanpa latar.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>Level Koreksi</label>
+              <div class="button-group" role="group" aria-label="Level koreksi">
+                <button class="btn level-btn" data-level="L" aria-pressed="false">L</button>
+                <button class="btn level-btn" data-level="M" aria-pressed="true">M</button>
+                <button class="btn level-btn" data-level="Q" aria-pressed="false">Q</button>
+                <button class="btn level-btn" data-level="H" aria-pressed="false">H</button>
+              </div>
+              <!-- Fallback select (hidden) -->
+              <select id="level" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
+                <option value="L">L</option>
+                <option value="M" selected>M</option>
+                <option value="Q">Q</option>
+                <option value="H">H</option>
+              </select>
+            </div>
+            <div>
+              <label>Quiet Zone / Margin (px)</label>
+              <input id="margin" type="number" min="0" max="128" step="1" value="8"/>
+            </div>
+          </div>
+
+          <div class="size-grid">
+            <div>
+              <label>Ukuran (px)</label>
+              <input id="sizeRange" type="range" min="128" max="1024" step="4" value="320"/>
+            </div>
+            <input id="sizeNumber" type="number" min="128" max="1024" step="4" value="320"/>
+          </div>
+          <div class="presets">
+            <button class="preset" data-size="192">S 192</button>
+            <button class="preset" data-size="256">M 256</button>
+            <button class="preset" data-size="320">L 320</button>
+            <button class="preset" data-size="512">XL 512</button>
+            <button class="preset" data-size="768">2XL 768</button>
+            <label class="muted" style="display:inline-flex;align-items:center;gap:8px;margin-left:auto"><input id="autoFit" type="checkbox"/> Auto fit</label>
+          </div>
+
+          <div class="btns">
+            <button class="primary" id="btnGen">Generate</button>
+            <button class="success" id="btnDownloadPng" disabled>Download PNG</button>
+            <button class="success" id="btnDownloadSvg" disabled>Download SVG</button>
+            <button class="ghost" id="btnClear">Bersihkan</button>
+          </div>
+          <p id="err" class="error" role="alert" aria-live="polite"></p>
+          <p class="muted" id="contrastWarn" style="display:none">⚠️ Kontras warna rendah. QR mungkin sulit dipindai.</p>
+        </div>
+      </div>
+
+      <div class="card" aria-labelledby="preview-title">
+        <div class="section">
+          <h2 id="preview-title" style="position:absolute;left:-9999px">Pratinjau</h2>
+          <div class="panel">
+            <div class="preview" id="previewBox" aria-live="polite">
+              <div id="qrcode"></div>
+            </div>
+            <div class="footer-row" style="margin-top:12px">
+              <span class="muted">Hasil akan menyesuaikan margin & warna.</span>
+              <span class="chip" id="liveSize">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script>
+    const els = {
+      data: document.getElementById('data'),
+      level: document.getElementById('level'),
+      darkText: document.getElementById('darkColor'),
+      darkPick: document.getElementById('darkColorPick'),
+      lightText: document.getElementById('lightColor'),
+      lightPick: document.getElementById('lightColorPick'),
+      bgTransparent: document.getElementById('bgTransparent'),
+      transparentToggleLabel: document.getElementById('transparentToggleLabel'),
+      margin: document.getElementById('margin'),
+      sizeRange: document.getElementById('sizeRange'),
+      sizeNumber: document.getElementById('sizeNumber'),
+      sizeLabel: document.getElementById('sizeLabel'),
+      liveSize: document.getElementById('liveSize'),
+      autoFit: document.getElementById('autoFit'),
+      qrcode: document.getElementById('qrcode'),
+      previewBox: document.getElementById('previewBox'),
+      btnGen: document.getElementById('btnGen'),
+      btnDownloadPng: document.getElementById('btnDownloadPng'),
+      btnDownloadSvg: document.getElementById('btnDownloadSvg'),
+      btnClear: document.getElementById('btnClear'),
+      err: document.getElementById('err'),
+      contrastWarn: document.getElementById('contrastWarn'),
+      darkSwatches: document.getElementById('darkSwatches'),
+      lightSwatches: document.getElementById('lightSwatches'),
+      levelBtns: Array.from(document.querySelectorAll('.level-btn')),
+    };
+
+    let qrInstance = null;
+    let moduleCount = null; // untuk SVG & perhitungan quiet zone minim
+
+    const presetDark = ['#000000','#111827','#1f2937','#0ea5e9','#2563eb','#9333ea','#e11d48','#ef4444','#16a34a','#f59e0b'];
+    const presetLight = ['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#dcfce7','#fef9c3','#fee2e2','#fae8ff','#e0f2fe','#ffe4e6'];
+
+    // ===== Helpers =====
+    const clamp = (n,min,max)=> Math.min(max, Math.max(min, n));
+    const isHex = v=> /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v);
+    const to6 = hex=> hex.length===4 ? ('#'+hex.slice(1).split('').map(ch=>ch+ch).join('')) : hex;
+    const norm = hex=> to6(hex).toLowerCase();
+
+    function markValidity(el, valid){ el.classList.toggle('invalid', !valid); }
+
+    function updateActiveSwatch(container, hex){
+      const want = norm(hex);
+      container.querySelectorAll('.swatch').forEach(s=>{
+        const titleHex = (s.title||'').toLowerCase();
+        s.classList.toggle('active', titleHex===want);
+      });
+    }
+
+    function renderSwatches(container, colors, onPick){
+      container.innerHTML = '';
+      colors.forEach(c=>{
+        const btn = document.createElement('button');
+        btn.className = 'swatch';
+        btn.style.background = c;
+        btn.title = to6(c);
+        btn.addEventListener('click', ()=>{
+          container.querySelectorAll('.swatch').forEach(s=> s.classList.remove('active'));
+          btn.classList.add('active');
+          onPick(c);
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    renderSwatches(els.darkSwatches, presetDark, (c)=> setColor('dark', c));
+    renderSwatches(els.lightSwatches, presetLight, (c)=> setColor('light', c));
+
+    // ===== Colors & contrast =====
+    function setColor(kind, value){
+      const txt = kind==='dark'?els.darkText:els.lightText;
+      const pick = kind==='dark'?els.darkPick:els.lightPick;
+      const container = kind==='dark'?els.darkSwatches:els.lightSwatches;
+      const v = to6(value);
+      const ok = isHex(v);
+      markValidity(txt, ok);
+      if(!ok) return; // jangan update color picker sebelum valid
+      txt.value = v; pick.value = v;
+      updateActiveSwatch(container, v);
+      if(kind==='light' && !els.bgTransparent.checked) els.previewBox.style.background = v;
+      if(qrInstance && els.data.value.trim()) generate();
+      checkContrast();
+    }
+
+    function onHexInput(kind, val){
+      const el = (kind==='dark')? els.darkText : els.lightText;
+      const v = val.trim();
+      // normalisasi otomatis jika user ketik tanpa '#'
+      const normalized = v && v[0] !== '#' ? ('#'+v) : v;
+      markValidity(el, isHex(normalized));
+      if(isHex(normalized)) setColor(kind, normalized);
+    }
+
+    function luminance(hex){
+      const c = hex.replace('#','');
+      const r = parseInt(c.substring(0,2),16)/255;
+      const g = parseInt(c.substring(2,4),16)/255;
+      const b = parseInt(c.substring(4,6),16)/255;
+      const a = [r,g,b].map(v=> v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4));
+      return 0.2126*a[0]+0.7152*a[1]+0.0722*a[2];
+    }
+    function checkContrast(){
+      if(els.bgTransparent.checked){ els.contrastWarn.style.display='none'; return; }
+      const d = to6(els.darkText.value.trim());
+      const l = to6(els.lightText.value.trim());
+      if(!isHex(d)||!isHex(l)){ els.contrastWarn.style.display='none'; return; }
+      const L1 = luminance(d)+0.05; const L2 = luminance(l)+0.05;
+      const ratio = L1>L2? L1/L2 : L2/L1;
+      els.contrastWarn.style.display = ratio<2.5 ? 'block':'none';
+    }
+
+    // ===== Size controls & active presets =====
+    const presetButtons = ()=> Array.from(document.querySelectorAll('.preset'));
+
+    function currentSize(){ return clamp(+els.sizeNumber.value||+els.sizeRange.value||320,128,1024); }
+    function applySize(n){
+      const s = clamp(Math.round(n),128,1024);
+      els.sizeRange.value=s; els.sizeNumber.value=s; els.sizeLabel.textContent=`${s} × ${s}`; els.liveSize.textContent=`Preview: ${s}px`;
+      // highlight preset active
+      presetButtons().forEach(b=> b.classList.toggle('active', +b.dataset.size === s));
+      if(qrInstance && els.data.value.trim()) generate();
+    }
+
+    function autoFitSize(){
+      const pad = 40; // padding estimation
+      const maxW = Math.floor(els.previewBox.clientWidth - pad);
+      applySize(clamp(maxW,128,1024));
+    }
+
+    function syncTransparentUI(){
+      const on = els.bgTransparent.checked;
+      els.transparentToggleLabel.classList.toggle('active', on);
+      els.lightText.classList.toggle('disabled', on);
+      els.lightPick.classList.toggle('disabled', on);
+      if(on){ els.previewBox.classList.add('checker'); } else { els.previewBox.classList.remove('checker'); els.previewBox.style.background = to6(els.lightText.value.trim()); }
+      checkContrast();
+      if(qrInstance && els.data.value.trim()) generate();
+    }
+
+    // ===== Level buttons =====
+    function setLevel(val){
+      els.level.value = val;
+      els.levelBtns.forEach(b=>{
+        const on = b.dataset.level === val;
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        b.classList.toggle('active', on);
+      });
+      if(qrInstance && els.data.value.trim()) generate();
+    }
+    els.levelBtns.forEach(b=> b.addEventListener('click', ()=> setLevel(b.dataset.level)));
+
+    // ===== Generate & export =====
+    function clearQR(){ els.qrcode.innerHTML=''; qrInstance=null; els.btnDownloadPng.disabled=true; els.btnDownloadSvg.disabled=true; }
+
+    function generate(){
+      els.err.textContent='';
+      const text = els.data.value.trim();
+      if(!text){ els.err.textContent='Masukkan data/URL.'; return; }
+
+      const size = currentSize();
+      const dark = to6(els.darkText.value.trim());
+      const light = to6(els.lightText.value.trim());
+      const isTransparent = els.bgTransparent.checked;
+      if(!isHex(dark) || (!isTransparent && !isHex(light))){ els.err.textContent='Warna harus hex, contoh #111827 atau #ffffff'; return; }
+
+      clearQR();
+      if(isTransparent){ els.previewBox.classList.add('checker'); } else { els.previewBox.classList.remove('checker'); els.previewBox.style.background = light; }
+
+      qrInstance = new QRCode(els.qrcode, { text, width:size, height:size, colorDark: dark, colorLight:'#0000', correctLevel: QRCode.CorrectLevel[els.level.value] });
+      try{ moduleCount = qrInstance._oQRCode.getModuleCount(); }catch(_){ moduleCount = null; }
+
+      els.btnDownloadPng.disabled=false;
+      els.btnDownloadSvg.disabled=false;
+      checkContrast();
+    }
+
+    // PNG export with minimal quiet zone 4 modules
+    function exportPNG(){
+      const canvas = els.qrcode.querySelector('canvas'); if(!canvas) return;
+      const size = canvas.width; 
+      const pxPerModule = moduleCount ? (size / moduleCount) : Math.max(4, Math.round(size/120));
+      const minMargin = Math.round(pxPerModule * 4);
+      const userM = +els.margin.value || 0;
+      const m = Math.max(userM, minMargin);
+      const scale = 3; // tajam
+      const out = document.createElement('canvas');
+      out.width = (size + m*2) * scale; out.height = (size + m*2) * scale;
+      const ctx = out.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      if(!els.bgTransparent.checked){ ctx.fillStyle = to6(els.lightText.value.trim()); ctx.fillRect(0,0,out.width,out.height); }
+      ctx.drawImage(canvas, m*scale, m*scale, size*scale, size*scale);
+      const url = out.toDataURL('image/png');
+      const a = document.createElement('a'); a.href=url; a.download=`qrcode_${Date.now()}.png`; a.click();
+    }
+
+    // SVG export based on module matrix
+    function exportSVG(){
+      if(!qrInstance || !moduleCount) return;
+      const size = currentSize();
+      const dark = to6(els.darkText.value.trim());
+      const light = to6(els.lightText.value.trim());
+      const pxPerModule = Math.floor(size / moduleCount) || 1;
+      const minMargin = 4; // in modules
+      const userMpx = +els.margin.value || 0;
+      const userMmod = Math.round(userMpx / pxPerModule);
+      const marginMod = Math.max(minMargin, userMmod);
+      const full = (moduleCount + marginMod*2) * pxPerModule;
+
+      let svg = [];
+      svg.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${full}" height="${full}" viewBox="0 0 ${full} ${full}" shape-rendering="crispEdges">`);
+      if(!els.bgTransparent.checked){ svg.push(`<rect width="100%" height="100%" fill="${light}"/>`); }
+
+      const matrix = qrInstance._oQRCode.modules;
+      for(let r=0;r<moduleCount;r++){
+        for(let c=0;c<moduleCount;c++){
+          if(matrix[r][c]){
+            const x = (c + marginMod) * pxPerModule;
+            const y = (r + marginMod) * pxPerModule;
+            svg.push(`<rect x="${x}" y="${y}" width="${pxPerModule}" height="${pxPerModule}" fill="${dark}"/>`);
+          }
+        }
+      }
+      svg.push(`</svg>`);
+      const blob = new Blob([svg.join('')], {type:'image/svg+xml'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download=`qrcode_${Date.now()}.svg`; a.click();
+      setTimeout(()=> URL.revokeObjectURL(url), 1000);
+    }
+
+    // ===== Events =====
+    els.darkPick.addEventListener('input', e=> setColor('dark', e.target.value));
+    els.lightPick.addEventListener('input', e=> setColor('light', e.target.value));
+    els.darkText.addEventListener('input', e=> onHexInput('dark', e.target.value));
+    els.lightText.addEventListener('input', e=> onHexInput('light', e.target.value));
+    els.darkText.addEventListener('change', e=> onHexInput('dark', e.target.value));
+    els.lightText.addEventListener('change', e=> onHexInput('light', e.target.value));
+
+    els.sizeRange.addEventListener('input', e=> applySize(+e.target.value));
+    els.sizeNumber.addEventListener('change', e=> applySize(+e.target.value));
+    document.querySelectorAll('.preset').forEach(b=> b.addEventListener('click', ()=> applySize(+b.dataset.size)));
+
+    els.btnGen.addEventListener('click', generate);
+    els.btnDownloadPng.addEventListener('click', exportPNG);
+    els.btnDownloadSvg.addEventListener('click', exportSVG);
+    els.btnClear.addEventListener('click', ()=>{ els.data.value=''; els.err.textContent=''; els.contrastWarn.style.display='none'; clearQR(); });
+
+    els.data.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); generate(); }});
+
+    els.autoFit.addEventListener('change', ()=>{ if(els.autoFit.checked) autoFitSize(); });
+    window.addEventListener('resize', ()=>{ if(els.autoFit.checked) autoFitSize(); });
+
+    els.bgTransparent.addEventListener('change', syncTransparentUI);
+
+    // ===== Init =====
+    setColor('dark','#111827'); setColor('light','#ffffff'); applySize(320); syncTransparentUI();
+    updateActiveSwatch(els.darkSwatches, '#111827');
+    updateActiveSwatch(els.lightSwatches, '#ffffff');
+    // set initial active preset (L 320)
+    document.querySelectorAll('.preset').forEach(b=> b.classList.toggle('active', +b.dataset.size === 320));
+    // init level buttons
+    els.levelBtns.forEach(b=> b.classList.toggle('active', b.dataset.level==='M'));
+  </script>
+</body>
+</html>
